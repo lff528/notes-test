@@ -1,0 +1,159 @@
+目标
+提高团队的协作效率,使团队内基于Vue开发的代码风格统一、容易被阅读和理解,从而减小沟通成本和维护成本,提升团队的整体开发效率.
+
+通用约定
+由于Vue就是融合了HTML、CSS和HTML的开发,所以在Vue的开发中,很多规范可以参考Javascript、HTML和CSS的开发规范.
+
+Vue中的Javascript可参考Javascript的开发规范,css开发可参考CSS开发规范,Vue模板部分的开发,可参考HTML的开发规范
+
+Vue中的javascript部分函数与函数之间可以不留有空行.
+
+下面我们仅针对特定在Vue开发场景中需要约定的一些规范进行说明
+
+单文件组件的顶级元素的排序
+
+<template>
+    <div></div>
+</template>
+<script>
+</script>
+<style>
+</style>
+
+Vue文件的命名规则
+基础组件使用大驼峰的命名方式(类似于Javascript中的类的概念)
+
+页面文件使用小驼峰的命名方式
+
+router中的path命名采用小驼峰的命名方式
+
+router中的path命名,要和功能、内容相关,不要和UI相关
+名称使用名词,精简、有意义,做到见名知义
+
+HelloWorld.vue
+# 优秀的命名方式
+WorkbenchIndex.vue、WorkbenchList.vue、WorkbenchEdit.vue
+# 糟糕的命名
+workbench.vue
+注释
+单行注释
+每个注释单独占一行,不要跟被注释内容的后面
+
+// 用户名
+username: this.$route.params.name,
+// 密码
+password: this.$route.query.password,
+组件注释
+组件使用多行注释的方式,使用/** …… */包裹
+
+关键注释内容
+
+组件简介
+作者
+创建日期
+参数说明
+调用示例
+注释内容放置在vue模板中script标记起始的位置
+
+<script>
+/**
+ * 组件描述
+ * @date 创建日期
+ * @author 作者
+ * @name {string} name 参数说明
+ * @example 调用示例如<bread :breadData="breadData"></bread>
+ */
+export default {
+}
+指令
+指令统一采用简写形式
+
+<!-- 事件绑定函数class的绑定,都使用了简写的形式 -->
+<button class="btn btn-primary" @click="login" :class="{active:isLogin}">登录</button>
+当某个组件由多个属性时,没给属性单独占一行
+
+<input
+    type="text"
+    class="form-control"
+    v-model="username"
+    placeholder="请输入用户名"
+/>
+模板中的表达式
+
+应该为简单的表达式
+如果是复杂的表达式,可根据实际情况将复杂的表达式提取为计算属性或者方法
+
+<!-- 在模板中,优雅的实现 -->
+{{ normalizedFullName }}
+// 复杂表达式已经移入一个计算属性
+    computed: {
+        normalizedFullName: function() {
+            return this.fullName
+                .split(" ")
+                .map(function(word) {
+                    return word[0].toUpperCase() + word.slice(1);
+                })
+                .join(" ");
+        }
+    },
+<!-- 模板中:糟糕的实现 -->
+{{
+  fullName.split(' ').map(function (word) {
+    return word[0].toUpperCase() + word.slice(1)
+  }).join(' ')
+}}
+v-for循环中必须添加key属性
+
+如果循环数据中返回了可以标识唯一的值,则key属性赋值为返回的结果数据集中的标识唯一的值
+如果循环数据结果集中没有返回可标识唯一的值,则key属性赋值为index
+key值可以为数字或字符串,不可以为对象(如对象和数组)
+<!-- good -->
+<ul>
+    <li v-for="todo in todos":key="todo.id">{{ todo.text }}</li>
+</ul>
+<!-- bad -->
+<ul>
+    <li v-for="todo in todos">{{ todo.text }}</li>
+</ul>
+避免将v-for和v-if同时用在一个元素上面,影响性能
+
+将数据替换为一个计算属性,让其返回过滤后的数据列表
+
+<!-- bad -->
+<ul>
+    <li v-for="user in users" v-if="user.isActive" :key="user.id"> {{ user.name }} </li>
+</ul>
+<!-- good -->
+<ul>
+    <li v-for="user in activeUsers" :key="user.id"> {{ user.name }} </li>
+</ul>
+<script>
+computed: {
+    activeUsers: function () {
+        return this.users.filter(function (user) { return user.isActive })
+    }
+}
+</script>
+将v-if移到外面的容器元素上面
+<!-- bad -->
+<ul>
+    <li v-for="user in users"v-if="shouldShowUsers":key="user.id">{{ user.name }}</li>
+</ul>
+<!-- good -->
+<ul v-if="shouldShowUsers">
+    <li v-for="user in users":key="user.id">{{ user.name }}</li>
+</ul>
+
+组件数据
+组件的data必须是一个函数
+
+export default {
+    name: "login",
+    data() {
+        return {
+            username: "",
+            password: "",
+            mobile:"13299990987"
+        };
+    }
+}
